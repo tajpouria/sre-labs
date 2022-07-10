@@ -62,6 +62,23 @@ resource "aws_instance" "snort_debian" {
   associate_public_ip_address = true
 }
 
+resource "null_resource" "snort_debian" {
+  provisioner "remote-exec" {
+    connection {
+      host        = aws_instance.snort_debian.public_dns
+      type        = "ssh"
+      user        = "admin"
+      private_key = tls_private_key.snort_debian_ssh.private_key_pem
+    }
+
+    inline = ["echo 'snort_debian is ready.'"]
+  }
+
+  provisioner "local-exec" {
+    command = "echo run the playbook!!"
+  }
+}
+
 # SGs
 
 resource "aws_security_group" "snort_debian_sg" {
