@@ -4,7 +4,28 @@
   pre_tasks:
     - name: Update apt cache if it's needed.
       become: true
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         upgrade: true
-        cache_valid_time: 86400
+        autoremove: true
+
+  tasks:
+    - name: Install Snort.
+      become: true
+      ansible.builtin.apt:
+        name: snort
+
+    - name: Check if eth0 is on promiscuous mode.
+      become: true
+      ansible.builtin.shell:
+        cmd: "ifconfig eth0 | grep 'PROMISC'"
+      ignore_errors: true
+      no_log: true
+      changed_when: false
+      register: eth0_promisc_query
+
+    - name: Enable promiscuous mode on primary eth0 interface.
+      become: true
+      ansible.builtin.shell:
+        cmd: ifconfig eth0 promisc
+      when: "eth0_promisc_query.rc != 0"
