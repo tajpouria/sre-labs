@@ -35,3 +35,88 @@
       copy:
         src: snort/
         dest: /etc/snort/
+
+- name: Install Splunk Enterprise
+  hosts: splunk_debian
+  vars_prompt:
+    - name: splunk_password
+      private: true
+      prompt: Enter the Splunk admin user initial password.
+      salt_size: 8
+      default: iVF3NpRtMttkxxBN1qJw
+
+  pre_tasks:
+    - name: Update apt cache if it's needed.
+      become: true
+      apt:
+        update_cache: true
+        upgrade: true
+        autoremove: true
+
+  tasks:
+    - name: Install required system packages.
+      become: true
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+
+    - name: Add Docker GPG key.
+      become: true
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository.
+      become: true
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install docker-ce.
+      become: true
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Python module.
+      become: true
+      pip:
+        name: docker
+        version: "4.4.4"
+        state: present
+
+    - name: Pull Splunk Docker image.
+      become: true
+      community.docker.docker_image:
+        name: splunk/splunk
+        tag: latest
+        source: pull
+
+    - name: Run Splunk container.
+      become: true
+      community.docker.docker_container:
+        name: splunk
+        image: splunk/splunk:latest
+        state: started
+        cleanup: true
+        env:
+          SPLUNK_START_ARGS: --accept-license
+          SPLUNK_USER: root
+          SPLUNK_PASSWORD: "{{ splunk_password }}"
+        exposed_ports:
+          - 8080
+        published_ports:
+          - "8000:8000"
+          - "8089:8089"
+          - "9097:9097"
+        volumes:
+          - opt-splunk-etc:/opt/splunk/etc
+          - opt-splunk-var:/opt/splunk/var
