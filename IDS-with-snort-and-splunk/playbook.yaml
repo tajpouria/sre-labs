@@ -4,7 +4,7 @@
   pre_tasks:
     - name: Update apt cache if it's needed.
       become: true
-      ansible.builtin.apt:
+      apt:
         update_cache: true
         upgrade: true
         autoremove: true
@@ -12,12 +12,12 @@
   tasks:
     - name: Install Snort.
       become: true
-      ansible.builtin.apt:
+      apt:
         name: snort
 
     - name: Check if eth0 is on promiscuous mode.
       become: true
-      ansible.builtin.shell:
+      shell:
         cmd: "ifconfig eth0 | grep 'PROMISC'"
       ignore_errors: true
       no_log: true
@@ -26,6 +26,12 @@
 
     - name: Enable promiscuous mode on primary eth0 interface.
       become: true
-      ansible.builtin.shell:
+      shell:
         cmd: ifconfig eth0 promisc
       when: "eth0_promisc_query.rc != 0"
+
+    - name: Copy Snort configuration and rules to remote.
+      become: true
+      copy:
+        src: snort/
+        dest: /etc/snort/
