@@ -44,6 +44,9 @@ terraform.rc
 # Generated SSH keys
 **/.ssh
 
+# Generate inventory files
+**/.inventory/
+
 ##
 # Python
 ##

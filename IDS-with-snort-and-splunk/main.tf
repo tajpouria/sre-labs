@@ -177,6 +177,18 @@ resource "aws_instance" "snort_debian" {
   associate_public_ip_address = true
 }
 
+resource "local_file" "snort_debian_inventory" {
+  content  = <<EOF
+[snort_debian]
+${aws_instance.snort_debian.public_dns}
+
+[snort_debian:vars]
+ansible_user = admin
+ansible_ssh_private_key_file = ${local_file.snort_debian_ssh.filename}
+EOF
+  filename = ".inventory/snort_debian.inventory"
+}
+
 resource "null_resource" "snort_debian" {
   provisioner "remote-exec" {
     connection {
@@ -187,10 +199,6 @@ resource "null_resource" "snort_debian" {
     }
 
     inline = ["echo 'snort_debian is ready.'"]
-  }
-
-  provisioner "local-exec" {
-    command = "echo run the playbook!!"
   }
 }
 
@@ -218,6 +226,18 @@ resource "aws_instance" "splunk_debian" {
   associate_public_ip_address = true
 }
 
+resource "local_file" "splunk_debian_inventory" {
+  content  = <<EOF
+[splunk_debian]
+${aws_instance.splunk_debian.public_dns}
+
+[splunk_debian:vars]
+ansible_user = admin
+ansible_ssh_private_key_file = ${local_file.splunk_debian_ssh.filename}
+EOF
+  filename = ".inventory/splunk_debian.inventory"
+}
+
 resource "null_resource" "splunk_debian" {
   provisioner "remote-exec" {
     connection {
@@ -229,18 +249,4 @@ resource "null_resource" "splunk_debian" {
 
     inline = ["echo 'splunk_debian is ready.'"]
   }
-
-  provisioner "local-exec" {
-    command = "echo run the playbook!!"
-  }
-}
-
-# Outputs
-
-output "snort_debian_public_ip" {
-  value = aws_instance.snort_debian.public_ip
-}
-
-output "splunk_debian_public_ip" {
-  value = aws_instance.splunk_debian.public_ip
 }
