@@ -1,0 +1,10 @@
+http:
+  routers:
+    all_backend_router:
+      rule: Host(`tajpouria.localhost`)
+      service: all_backend
+  services:
+    all_backend:
+      loadBalancer:
+        servers:
+          - url 'http://whoami'

@@ -1,0 +1,5 @@
+{
+  "yaml.schemas": {
+    "https://json.schemastore.org/traefik-v2.json": "file:///home/tajpouria/pro/src/github/tajpouria/sre-labs/traefik/etc/all.yml"
+  }
+}

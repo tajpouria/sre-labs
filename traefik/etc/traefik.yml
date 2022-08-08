@@ -1,0 +1,8 @@
+entryPoints:
+  unsecure:
+    address: :80
+
+providers:
+  file:
+    filename: /etc/traefik/all.yml
+    watch: true
